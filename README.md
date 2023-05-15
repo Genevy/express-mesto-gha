@@ -14,3 +14,8 @@
 
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
+
+##
+####
+© Developed by [Evgeny Striganov](https://github.com/genevy) jointly [Yandex Praktikum](https://practicum.yandex.ru/web/)
+
