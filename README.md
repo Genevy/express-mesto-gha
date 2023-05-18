@@ -1,5 +1,13 @@
+<div align="center"><h3>Mesto фронтенд + бэкенд</h3></div>
+
+##
+
+<br>
+<div align="center">
+  
 [![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+
+</div>
 
 
 ## Директории
