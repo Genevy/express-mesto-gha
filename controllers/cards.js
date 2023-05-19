@@ -6,7 +6,7 @@ module.exports.getCards = (request, response) => {
     .find({})
     .then((cards) => response.status(200)
       .send(cards))
-    .catch((err) => response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+    .catch(() => response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
       .send({ message: 'Default error' }));
 };
 
