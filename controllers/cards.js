@@ -6,8 +6,8 @@ module.exports.getCards = (request, response) => {
     .find({})
     .then((cards) => response.status(200)
       .send(cards))
-    .catch((err) => response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: err.message }));
+    .catch(() => response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+      .send({ message: 'Default error' }));
 };
 
 module.exports.deleteCard = (request, response) => {
@@ -30,7 +30,7 @@ module.exports.deleteCard = (request, response) => {
           .send({ message: 'Card with _id cannot be found' });
       } else {
         response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: err.message });
+          .send({ message: 'Default error' });
       }
     });
 };
@@ -56,7 +56,7 @@ module.exports.createCard = (request, response) => {
           .send({ message: 'Invalid data for card creation' });
       } else {
         response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: err.message });
+          .send({ message: 'Default error' });
       }
     });
 };
@@ -84,7 +84,7 @@ module.exports.addLike = (request, response) => {
       }
 
       return response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: err.message });
+        .send({ message: 'Default error' });
     });
 };
 
@@ -111,6 +111,6 @@ module.exports.deleteLike = (request, response) => {
       }
 
       return response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: err.message });
+        .send({ message: 'Default error' });
     });
 };
