@@ -1,41 +1,17 @@
-const httpConstants = require('http2').constants;
 const cardSchema = require('../models/card');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
-module.exports.getCards = (request, response) => {
+module.exports.getCards = (request, response, next) => {
   cardSchema
     .find({})
     .then((cards) => response.status(200)
       .send(cards))
-    .catch(() => response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: 'Default error' }));
+    .catch(next);
 };
 
-module.exports.deleteCard = (request, response) => {
-  const { cardId } = request.params;
-
-  cardSchema
-    .findByIdAndRemove(cardId)
-    .then((card) => {
-      if (!card) {
-        return response.status(httpConstants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Not found: Invalid _id' });
-      }
-
-      return response.status(200)
-        .send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        response.status(httpConstants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Card with _id cannot be found' });
-      } else {
-        response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Default error' });
-      }
-    });
-};
-
-module.exports.createCard = (request, response) => {
+module.exports.createCard = (request, response, next) => {
   const {
     name,
     link,
@@ -52,16 +28,30 @@ module.exports.createCard = (request, response) => {
       .send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        response.status(httpConstants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Invalid data for card creation' });
+        next(new BadRequestError('Invalid data for card creation'));
       } else {
-        response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Default error' });
+        next(err);
       }
     });
 };
 
-module.exports.addLike = (request, response) => {
+module.exports.deleteCard = (request, response, next) => {
+  const { cardId } = request.params;
+
+  cardSchema.findById(cardId)
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('User not found');
+      }
+      if (!card.owner.equals(request.user._id)) {
+        return next(new ForbiddenError('Card cannot be deleted'));
+      }
+      return card.deleteOne().then(() => response.send({ message: 'Card was deleted' }));
+    })
+    .catch(next);
+};
+
+module.exports.addLike = (request, response, next) => {
   cardSchema
     .findByIdAndUpdate(
       request.params.cardId,
@@ -70,25 +60,19 @@ module.exports.addLike = (request, response) => {
     )
     .then((card) => {
       if (!card) {
-        return response.status(httpConstants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Not found: Invalid _id' });
+        throw new NotFoundError('User not found');
       }
-
-      return response.status(200)
-        .send(card);
+      response.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return response.status(httpConstants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Invalid data to add like' });
+        return next(new BadRequestError('Incorrect data'));
       }
-
-      return response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: 'Default error' });
+      return next(err);
     });
 };
 
-module.exports.deleteLike = (request, response) => {
+module.exports.deleteLike = (request, response, next) => {
   cardSchema
     .findByIdAndUpdate(
       request.params.cardId,
@@ -97,20 +81,14 @@ module.exports.deleteLike = (request, response) => {
     )
     .then((card) => {
       if (!card) {
-        return response.status(httpConstants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Not found: Invalid _id' });
+        throw new NotFoundError('User not found');
       }
-
-      return response.status(200)
-        .send(card);
+      response.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return response.status(httpConstants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Invalid data to delete like' });
+      if (err.name === 'CastError') {
+        return next(new BadRequestError('Incorrect data'));
       }
-
-      return response.status(httpConstants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: 'Default error' });
+      return next(err);
     });
 };

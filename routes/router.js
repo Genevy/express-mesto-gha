@@ -3,12 +3,12 @@ const router = require('express')
 
 const cardsRouter = require('./cards');
 const usersRouter = require('./users');
+const NotFoundError = require('../errors/NotFoundError');
 
 router.use('/users', usersRouter);
 router.use('/cards', cardsRouter);
-router.use('/*', (request, response) => {
-  response.status(404)
-    .send({ message: '404: Not Found' });
+router.use((request, response, next) => {
+  next(new NotFoundError('This page does not exist'));
 });
 
 module.exports = router;
