@@ -6,7 +6,7 @@ module.exports = (request, response, next) => {
   let payload;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('You need to log in');
+    return next(new UnauthorizedError('You need to log in'));
   }
 
   const token = authorization.replace('Bearer ', '');

@@ -41,9 +41,7 @@ module.exports.getUser = (request, response, next) => {
         .send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(BadRequestError('Incorrect data'));
-      } else if (err.message === 'NotFound') {
+      if (err.message === 'NotFound') {
         next(new NotFoundError('User not found'));
       } else {
         next(err);
@@ -77,8 +75,8 @@ module.exports.updateUser = (request, response, next) => {
         .send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(BadRequestError('Incorrect data'));
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Incorrect data'));
       } else {
         next(err);
       }
@@ -100,7 +98,7 @@ module.exports.updateAvatar = (request, response, next) => {
     .then((user) => response.status(200)
       .send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Incorrect data'));
       } else {
         next(err);
