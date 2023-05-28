@@ -40,13 +40,7 @@ module.exports.getUser = (request, response, next) => {
       response.status(200)
         .send(user);
     })
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('User not found'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 module.exports.updateUser = (request, response, next) => {
@@ -87,14 +81,20 @@ module.exports.updateAvatar = (request, response, next) => {
   const { avatar } = request.body;
 
   userSchema
-    .findByIdAndUpdate(
-      request.user._id,
-      { avatar },
-      {
-        new: true,
-        runValidators: true,
-      },
-    )
+    .findById(request.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('User not found');
+      }
+      return userSchema.findByIdAndUpdate(
+        request.user._id,
+        { avatar },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+    })
     .then((user) => response.status(200)
       .send(user))
     .catch((err) => {

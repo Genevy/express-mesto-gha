@@ -39,5 +39,5 @@ app.use((error, request, response, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Приложение запущено в порте ${PORT}`);
+  console.log(`Приложение запущено на порту ${PORT}`);
 });
